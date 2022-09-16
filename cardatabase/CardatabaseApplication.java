@@ -1,4 +1,4 @@
-package com.ezdesign.cardatabase.com.ezdesign.cardatabase;
+package com.ezdesign.cardatabase;
 
 import java.util.Arrays;
 import java.util.HashSet;

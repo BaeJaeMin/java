@@ -1,4 +1,4 @@
-package com.ezdesign.cardatabase.com.ezdesign.cardatabase;
+package com.ezdesign.cardatabase;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +15,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
+import org.springframework.web.cors.CorsConfigurationSource;
+
 
 import com.ezdesign.cardatabase.service.UserDetailsServiceImpl;
+
+
 
 @SuppressWarnings("deprecation")
 @Configuration
@@ -25,16 +34,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable()
+		http.csrf().disable().cors().and()
 		  .sessionManagement()
 		  .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 		  .authorizeRequests()
 		  .antMatchers(HttpMethod.POST, "/login").permitAll()
-		  .anyRequest().authenticated();
+		  .anyRequest().authenticated().and()
+		  .exceptionHandling()
+		  .authenticationEntryPoint(exceptionHandler).and()
+		  .addFilterBefore(authenticationFilter,
+				  UsernamePasswordAuthenticationFilter.class);
 	}
 	
 	@Autowired
+	private AuthEntryPoint exceptionHandler;
+	
+	@Autowired
+	private AuthenticationFilter authenticationFilter;
+	
+	@Autowired
 	private UserDetailsServiceImpl userDetailsService;
+	
 
 	@Autowired
 	public void configureGlobal
@@ -47,5 +67,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		  Exception{
 		return authenticationManager();
 	}
-	
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+		UrlBasedCorsConfigurationSource source= 
+				new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(Arrays.asList("*"));
+		config.setAllowedMethods(Arrays.asList("*"));
+		config.setAllowedHeaders(Arrays.asList("*"));
+		config.setAllowCredentials(false);
+		config.applyPermitDefaultValues();
+		config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+		
+		source.registerCorsConfiguration("/**", config);
+		return source;
+	}
 }
