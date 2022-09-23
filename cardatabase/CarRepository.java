@@ -1,0 +1,31 @@
+package com.ezdesign.cardatabase.domamin;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+
+public interface CarRepository extends CrudRepository<Car, Long> {
+	//Fetch cars by brand
+	List<Car> findByBrand(String brand);
+	//Fetch cars by color
+	List<Car> findByColor(String color);
+	//Fetch cars by year1
+	List<Car> findByYear1(int year);
+	
+	//Fetch cars by Brand and Model
+	List<Car> findByBrandAndModel(String brand, String model);
+	//Fetch cars by brand or color
+	List<Car> findByBrandOrColor(String brand, String color);
+	
+	//Fetch cars by Brand and sort by year
+	List<Car> findByBrandOrderByYear1Asc(String brand);
+	
+	//Fetch cars by brand using SQL
+	@Query("select c from Car c where c.brand = ?1")
+	List<Car> findByBrand1(String brand);
+	
+	//Fetch cars by brand using SQL
+	List<Car> findByBrandEndsWith(String brand);
+
+}
